@@ -4,16 +4,23 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Media;
+use Illuminate\Http\Request;
 use App\Http\Requests\StoreMediaRequest;
 use App\Http\Requests\UpdateMediaRequest;
 use App\Http\Resources\MediaResource;
 
 class MediaController extends Controller
 {
-    // Menampilkan semua media
-    public function index()
+    // Menampilkan semua media dan pencarian berdasarkan judul
+    public function index(Request $request)
     {
-        $media = Media::with('users')->get();
+        $query = Media::with('users');
+
+        if ($request->filled('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        }
+
+        $media = $query->get();
 
         return response()->json([
             'success' => true,
